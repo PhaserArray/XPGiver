@@ -66,10 +66,21 @@ namespace PhaserArray.XPGiver.Config
 				Instance = config;
 			}
 			// ReSharper disable once AssignNullToNotNullAttribute
-			if (!Directory.Exists(Path.GetDirectoryName(_file))) return;
-			using (var writer = new StreamWriter(_file))
+			try
 			{
-				_serializer.Serialize(writer, config);
+				if (!Directory.Exists(Path.GetDirectoryName(_file))) return;
+				using (var writer = new StreamWriter(_file))
+				{
+					_serializer.Serialize(writer, config);
+				}
+			}
+			catch (UnauthorizedAccessException)
+			{
+				Logger.Log("Not authorized to write to config file, file may be read-only!");
+			}
+			catch (Exception e)
+			{
+				Logger.Log("Error writing to config file, config will not be saved: " + e);
 			}
 		}
 	}
